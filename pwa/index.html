@@ -204,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.56</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.57</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -464,14 +464,60 @@ function checkResume() {
   if (saved) {
     const data = JSON.parse(saved);
     if (data.results) {
-      hint.textContent = `📋 Previous results found for "${name}"`;
+      hint.innerHTML = `<a href="#" onclick="viewSavedResults('${name}');return false;" style="color:var(--accent2);text-decoration:underline;">📋 View previous results for "${name}"</a>`;
     } else if (data.answers && Object.keys(data.answers).length > 0) {
-      hint.textContent = `⏳ In-progress assessment found (${Object.keys(data.answers).length}/30 answered)`;
+      hint.innerHTML = `<a href="#" onclick="resumeAssessment('${name}');return false;" style="color:var(--accent2);text-decoration:underline;">⏳ Resume assessment (${Object.keys(data.answers).length}/30 answered)</a>`;
     }
     hint.style.display = 'block';
   } else {
     hint.style.display = 'none';
   }
+}
+
+function resumeAssessment(name) {
+  const saved = loadState(name);
+  if (!saved) return;
+  buildFlatSections();
+  answers = saved.answers;
+  currentPage = saved.currentPage || 0;
+  currentQ = saved.currentQ || 0;
+  switchScreen('screen-questions');
+  buildPageQuestions();
+  renderQuestion();
+}
+
+function viewSavedResults(name) {
+  const saved = loadState(name);
+  if (!saved || !saved.results) return;
+  buildFlatSections();
+  // Reconstruct weighted from saved data
+  const { ocean, unmet, weighted } = saved.results;
+  const oceanP = {};
+  const unmetP = {};
+  // Recalculate proportions
+  const oTotal = Object.values(ocean).reduce((s,d) => s+d.total,0);
+  const uTotal = Object.values(unmet).reduce((s,d) => s+d.total,0);
+  for (let [k,d] of Object.entries(ocean)) oceanP[k] = {...d, pct: d.total/oTotal};
+  for (let [k,d] of Object.entries(unmet)) unmetP[k] = {...d, pct: d.total/uTotal};
+  // Rebuild weighted if not saved
+  let w = weighted;
+  if (!w) {
+    w = [];
+    for (let o of Object.keys(MATRIX)) {
+      for (let u of Object.keys(MATRIX[o])) {
+        w.push({ ocean:o, unmet:u, weight: oceanP[o].pct * unmetP[u].pct, ...MATRIX[o][u] });
+      }
+    }
+    w.sort((a,b) => b.weight - a.weight);
+  }
+  function topTwo(scores) {
+    const entries = Object.entries(scores).sort((a,b) => b[1].total - a[1].total);
+    return { dominant: entries[0], secondary: entries[1] || null };
+  }
+  const oceanTop = topTwo(ocean);
+  const lackTop = topTwo(unmet);
+  renderResults(oceanTop, lackTop, w, ocean, unmet);
+  switchScreen('screen-results');
 }
 
 function getUserName() {
@@ -501,23 +547,9 @@ function loadState(name) {
 // ── NAVIGATION ────────────────────────────────────────
 function startAssessment() {
   buildFlatSections();
-  const name = getUserName();
-  const saved = loadState(name);
-  if (saved && saved.answers && Object.keys(saved.answers).length > 0 && !saved.results) {
-    if (confirm(`Resume your previous session? (${Object.keys(saved.answers).length}/30 answered)`)) {
-      answers = saved.answers;
-      currentPage = saved.currentPage || 0;
-      currentQ = saved.currentQ || 0;
-    } else {
-      answers = {};
-      currentPage = 0;
-      currentQ = 0;
-    }
-  } else {
-    answers = {};
-    currentPage = 0;
-    currentQ = 0;
-  }
+  answers = {};
+  currentPage = 0;
+  currentQ = 0;
   switchScreen('screen-questions');
   buildPageQuestions();
   renderQuestion();
