@@ -204,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.54</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.55</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -283,45 +283,45 @@ const QUESTIONS = {
         trait: 'Openness',
         desc: 'Curiosity & Intellect',
         questions: [
-          'I naturally gravitate toward abstract theories, complex philosophical concepts, and creative ideas.',
-          'I feel a frequent, driving urge to explore new fields of knowledge, artistic expression, or intellectual deep-dives.',
-          'I prefer deep, unconventional, or speculative discussions over routine, practical everyday topics.',
+          'I\'m drawn to big ideas, philosophy, and creative thinking.',
+          'I often feel a strong urge to learn something new or dive into a fresh topic.',
+          'I\'d rather talk about ideas and possibilities than day-to-day practical matters.',
         ]
       },
       {
         trait: 'Conscientiousness',
         desc: 'Discipline & Order',
         questions: [
-          'I feel an internal compulsion to keep my environment, schedule, and ongoing tasks meticulously organized.',
-          'When working on goals, I rely on steady, systematic discipline rather than waiting for spontaneous motivation.',
-          'I am thorough, detail-oriented, and strongly feel a sense of obligation to complete tasks flawlessly.',
+          'I like my space, schedule, and to-do lists to be neat and organized.',
+          'I get things done through steady effort, not bursts of motivation.',
+          'I pay close attention to details and feel a real need to finish things properly.',
         ]
       },
       {
         trait: 'Extraversion',
         desc: 'Sociability & Drive',
         questions: [
-          'I gain energy, excitement, and enthusiasm from social gatherings, busy group settings, and vibrant events.',
-          'I naturally assert my opinions in conversations and feel comfortable taking the lead in social dynamics.',
-          'I actively pursue high-stimulation activities, novel social rewards, and outward action over quiet solitary reflection.',
+          'Being around people — parties, groups, busy events — gives me energy.',
+          'I speak up easily in conversations and don\'t mind taking the lead socially.',
+          'I prefer action, excitement, and being out in the world over quiet alone time.',
         ]
       },
       {
         trait: 'Agreeableness',
         desc: 'Harmony & Trust',
         questions: [
-          'Maintaining peace, showing empathy, and accommodating others is my default priority, even at personal expense.',
-          'I naturally give people the benefit of the doubt and find harsh interpersonal conflict deeply uncomfortable.',
-          'I readily put my own preferences aside to ensure the comfort, well-being, and emotional harmony of the group.',
+          'Keeping the peace and making sure others feel okay is more important to me than getting my way.',
+          'I tend to trust people and really dislike arguments or conflict.',
+          'I often put aside what I want to make sure everyone around me is comfortable.',
         ]
       },
       {
         trait: 'Neuroticism',
         desc: 'Stress Reactivity',
         questions: [
-          'I frequently experience sudden spikes of anxiety, physical tension, or intense worry when unexpected problems arise.',
-          'Minor setbacks, critical feedback, or perceived rejection can easily disrupt my internal peace for extended periods.',
-          'I find my mind ruminating repeatedly on worst-case scenarios and potential threats, making it hard to relax.',
+          'I get hit with sudden anxiety or tension when things go wrong unexpectedly.',
+          'A small setback or critical comment can throw me off for hours or days.',
+          'My mind keeps replaying worst-case scenarios, and I find it hard to unwind.',
         ]
       }
     ]
@@ -333,45 +333,45 @@ const QUESTIONS = {
         trait: 'Attachment',
         desc: 'Safety & Nurturing',
         questions: [
-          'When I was upset as a child, my caregivers would withdraw, stay silent, or leave the room rather than comfort me.',
-          'I check my phone repeatedly when a partner or close friend hasn\'t responded within a few hours.',
-          'When I\'m struggling, I hesitate to reach out because I expect no one will really show up.',
+          'When I was upset as a kid, the adults around me would pull away, go quiet, or leave rather than comfort me.',
+          'If a partner or close friend doesn\'t reply within a few hours, I check my phone over and over.',
+          'When I\'m struggling, I hold back from reaching out because deep down I expect no one will really be there.',
         ]
       },
       {
         trait: 'Competence',
         desc: 'Autonomy & Mastery',
         questions: [
-          'My parents would re-do tasks I had already completed, like making my bed or packing my bag.',
-          'I sometimes avoid applying for jobs or roles because I assume someone else is more qualified.',
-          'Before making a purchase over $100, I ask at least two people what they think I should do.',
+          'Growing up, my parents would re-do things I had already finished — like remaking my bed or repacking my bag.',
+          'I sometimes don\'t go for a job or role because I assume other people are more qualified than me.',
+          'Before spending more than $100, I feel like I need to ask at least two people what they think.',
         ]
       },
       {
         trait: 'Expression',
         desc: 'Validating Emotion',
         questions: [
-          'If I raised my voice or cried as a child, I was sent to my room or told to "fix my face."',
-          'When I feel angry or sad around others, I go quiet and wait until I\'m alone to process it.',
-          'I\'ve typed out an honest message about how I feel, then deleted it and wrote "I\'m fine" instead.',
+          'As a child, if I raised my voice or cried, I was sent away or told to "fix my face."',
+          'When I feel angry or sad around other people, I shut down and wait until I\'m alone to deal with it.',
+          'I\'ve typed out an honest message about how I feel, then erased it and sent "I\'m fine" instead.',
         ]
       },
       {
         trait: 'Play',
         desc: 'Joy & Lightheartedness',
         questions: [
-          'My childhood weekends were filled with chores, caregiving, or structured activities — rarely free time to just play.',
-          'When I sit down to watch a show or read for fun, a voice in my head lists things I "should" be doing instead.',
-          'If a friend suggests a last-minute outing, my first thought is about what responsibilities I\'d be neglecting.',
+          'My weekends as a kid were mostly chores, looking after siblings, or structured activities — rarely just free time to play.',
+          'When I sit down to relax with a show or a book, a little voice in my head lists things I "should" be doing instead.',
+          'If a friend suggests a spontaneous outing, my first thought is about what I\'d be neglecting by going.',
         ]
       },
       {
         trait: 'Limits',
         desc: 'Boundaries & Structure',
         questions: [
-          'Growing up, there were no set bedtimes, meal routines, or consistent consequences for breaking rules.',
-          'I start new habits with enthusiasm but typically abandon them within two weeks.',
-          'When a boss or manager sets a deadline or procedure I didn\'t agree to, my immediate reaction is irritation.',
+          'There were no steady bedtimes, meal routines, or consistent rules growing up — things just kind of shifted day to day.',
+          'I get excited about a new habit but usually drop it within a couple of weeks.',
+          'When a boss or manager gives me a deadline I didn\'t agree to, my gut reaction is irritation.',
         ]
       }
     ]
