@@ -230,7 +230,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.77</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.78</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -687,8 +687,7 @@ function renderQuestion() {
   navHtml += '<button class="btn btn-secondary" onclick="startOver()" style="font-size:0.7rem;padding:4px 10px;opacity:0.6;">Start Over</button>';
 
   // Check if ALL 36 questions are answered
-  const totalAnswered = Object.keys(answers).length;
-  const allDone = totalAnswered >= 36;
+  const allDone = Object.keys(answers).length >= 36;
 
   if (allDone) {
     navHtml += '<button class="btn btn-primary" onclick="calculateResults()">See Results 🧠</button>';
