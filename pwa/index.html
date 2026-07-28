@@ -218,7 +218,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.68</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.69</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -883,7 +883,7 @@ function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
     const mult = (a.weight / baseline).toFixed(1);
     top3html += `
         <div style="${i > 0 ? 'margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);' : ''}">
-          <div style="font-size:${i===0?'1.15':'0.92'}rem;font-weight:700;color:var(--accent);line-height:1.3;">${a.pos} <span style="color:var(--text2);font-weight:300;">↔</span> <span style="color:var(--text2);">${a.neg}</span></div>
+          <div style="font-size:${i===0?'1.15':'0.92'}rem;font-weight:700;line-height:1.3;"><span style="color:var(--accent);">${a.pos}</span> <span style="color:var(--text2);font-weight:700;">↔</span> <span style="color:#b89090;">${a.neg}</span></div>
           <div style="font-size:0.72rem;color:var(--text2);margin-bottom:4px;">${a.ocean} × ${a.unmet} · ${mult}× baseline</div>
           <div style="font-size:0.8rem;color:var(--text2);line-height:1.4;font-style:italic;">${a.desc}</div>
         </div>`;
