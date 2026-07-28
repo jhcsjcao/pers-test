@@ -204,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.52</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.53</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -708,42 +708,66 @@ function calculateResults() {
     }
   }
 
-  // Split into OCEAN and Lacks
+  // Split into OCEAN and Unmet Needs
   const oceanScores = {};
-  const lackScores = {};
+  const unmetScores = {};
   for (let [trait, data] of Object.entries(traitScores)) {
     if (data.part === 'part1') oceanScores[trait] = data;
-    else lackScores[trait] = data;
+    else unmetScores[trait] = data;
   }
 
+  // Convert to proportions (each set of 5 sums to 1.0)
+  function proportions(scores) {
+    const total = Object.values(scores).reduce((s, d) => s + d.total, 0);
+    const props = {};
+    for (let [trait, data] of Object.entries(scores)) {
+      props[trait] = { ...data, pct: data.total / total };
+    }
+    return props;
+  }
+
+  const oceanP = proportions(oceanScores);
+  const unmetP = proportions(unmetScores);
+
+  // Weighted archetypes: every OCEAN × every Unmet = 25 archetypes, weight = OCEAN% × Unmet%
+  const weighted = [];
+  const oceanTraits = Object.keys(MATRIX);
+  for (let o of oceanTraits) {
+    const unmetTraits = Object.keys(MATRIX[o]);
+    for (let u of unmetTraits) {
+      const weight = oceanP[o].pct * unmetP[u].pct;
+      weighted.push({
+        ocean: o, unmet: u,
+        weight,
+        ...MATRIX[o][u]
+      });
+    }
+  }
+  weighted.sort((a, b) => b.weight - a.weight);
+
+  // Top two for summary cards
   function topTwo(scores) {
     const entries = Object.entries(scores).sort((a, b) => b[1].total - a[1].total);
     return { dominant: entries[0], secondary: entries[1] || null };
   }
 
   const ocean = topTwo(oceanScores);
-  const lack = topTwo(lackScores);
+  const lack = topTwo(unmetScores);
 
-  // Look up archetype
-  const archetype = MATRIX[ocean.dominant[0]]?.[lack.dominant[0]] || null;
-  const secondaryArchetype = ocean.secondary && lack.secondary
-    ? MATRIX[ocean.secondary[0]]?.[lack.secondary[0]] || null
-    : null;
-
-  renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, lackScores);
+  renderResults(ocean, lack, weighted, oceanScores, unmetScores);
   switchScreen('screen-results');
 
   // Save results
   const name = getUserName();
   if (name !== 'anonymous') {
     saveState({
-      results: { ocean: oceanScores, lack: lackScores, archetype, secondaryArchetype },
+      results: { ocean: oceanScores, unmet: unmetScores, weighted: weighted.slice(0,5) },
       completedAt: new Date().toISOString()
     });
   }
 }
 
-function renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, lackScores) {
+function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
   function formatEntry(entry, color, name) {
     if (!entry) return '';
     const [trait, data] = entry;
@@ -753,18 +777,36 @@ function renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, 
         <div class="archetype-desc">${data.total}/15 — ${data.desc}</div>`;
   }
 
+  // Top archetype
+  const top = weighted[0];
+  const second = weighted[1];
+
+  // Show top 5 weighted archetypes
+  let archetypeRows = '';
+  for (let i = 0; i < Math.min(5, weighted.length); i++) {
+    const a = weighted[i];
+    const pct = (a.weight * 100).toFixed(1);
+    const barW = Math.max(2, a.weight * 400);
+    archetypeRows += `
+      <div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:0.82rem;">
+        <div style="flex:1;text-align:right;">
+          <span style="font-weight:600;">${a.pos}</span>
+          <span style="color:var(--text2);font-size:0.7rem;"> / ${a.neg}</span>
+        </div>
+        <div style="width:120px;background:var(--surface);border-radius:4px;height:16px;overflow:hidden;">
+          <div style="width:${barW}%;background:var(--accent);height:100%;border-radius:4px;transition:width 0.5s;"></div>
+        </div>
+        <span style="color:var(--accent2);font-size:0.75rem;font-weight:700;width:40px;text-align:left;">${pct}%</span>
+      </div>`;
+  }
+
   let html = `
     <div class="results-grid">
       <div class="result-card dominant">
-        <div class="label">Primary Archetype</div>
-        <div class="trait" style="color:var(--accent);">${archetype ? archetype.pos : '—'} <span style="font-size:0.8rem;color:var(--text2);font-weight:400;">/ ${archetype ? archetype.neg : ''}</span></div>
-        <div class="archetype-desc">${archetype ? archetype.desc : 'No direct match found.'}</div>
-        ${secondaryArchetype ? `
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--surface2);">
-          <div class="label">Secondary Archetype</div>
-          <div class="trait" style="color:var(--accent);">${secondaryArchetype.pos} <span style="font-size:0.8rem;color:var(--text2);font-weight:400;">/ ${secondaryArchetype.neg}</span></div>
-          <div class="archetype-desc">${secondaryArchetype.desc}</div>
-        </div>` : ''}
+        <div class="label">Top Archetype</div>
+        <div class="trait" style="color:var(--accent);">${top.pos} <span style="font-size:0.8rem;color:var(--text2);font-weight:400;">/ ${top.neg}</span></div>
+        <div class="archetype-desc">${top.desc}</div>
+        <div style="font-size:0.7rem;color:var(--text2);margin-top:6px;">${(top.weight*100).toFixed(1)}% fit · ${top.ocean} × ${top.unmet}</div>
       </div>
       <div class="result-card">
         ${formatEntry(ocean.dominant, 'var(--accent)', 'Dominant OCEAN Trait')}
@@ -774,11 +816,16 @@ function renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, 
         ${formatEntry(lack.dominant, 'var(--warn)', 'Dominant Unmet Need')}
         ${lack.secondary ? `<div class="secondary" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--surface2);">${formatEntry(lack.secondary, 'var(--warn)', 'Secondary Unmet Need')}</div>` : ''}
       </div>
+    </div>
+    <div class="result-card" style="margin-top:14px;text-align:left;">
+      <div class="label">Archetype Profile</div>
+      <div style="font-size:0.7rem;color:var(--text2);margin-bottom:8px;">Weighted by trait proportions — all 25 archetypes contribute</div>
+      ${archetypeRows}
     </div>`;
 
   // All trait scores in two columns
   const oceanKeys = Object.keys(oceanScores).sort((a,b) => oceanScores[b].total - oceanScores[a].total);
-  const lackKeys = Object.keys(lackScores).sort((a,b) => lackScores[b].total - lackScores[a].total);
+  const unmetKeys = Object.keys(unmetScores).sort((a,b) => unmetScores[b].total - unmetScores[a].total);
   html += `
     <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="result-card" style="text-align:left;">
@@ -789,7 +836,7 @@ function renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, 
       <div class="result-card" style="text-align:left;">
         <div class="label">Unmet Childhood Needs</div>
         <div style="font-size:0.68rem;color:var(--text2);margin-bottom:6px;">(Higher score = larger unmet need)</div>
-        ${lackKeys.map(k => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--surface2);font-size:0.82rem;"><span>${k}</span><span style="font-weight:700;color:var(--warn);">${lackScores[k].total}/15</span></div>`).join('')}
+        ${unmetKeys.map(k => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--surface2);font-size:0.82rem;"><span>${k}</span><span style="font-weight:700;color:var(--warn);">${unmetScores[k].total}/15</span></div>`).join('')}
       </div>
     </div>`;
   document.getElementById('results-content').innerHTML = html;
@@ -846,23 +893,23 @@ function showManualEntry() {
 function calculateManual() {
   buildFlatSections();
   const oceanScores = {};
-  const lackScores = {};
+  const unmetScores = {};
   for (let s of flatSections) {
     const val = parseInt(document.getElementById(`m-${s.trait}`).value) || 9;
     const data = { total: Math.min(15, Math.max(3, val)), part: s.part, desc: s.desc };
     if (s.part === 'part1') oceanScores[s.trait] = data;
-    else lackScores[s.trait] = data;
+    else unmetScores[s.trait] = data;
   }
   function topTwo(scores) {
     const entries = Object.entries(scores).sort((a, b) => b[1].total - a[1].total);
     return { dominant: entries[0], secondary: entries[1] || null };
   }
   const ocean = topTwo(oceanScores);
-  const lack = topTwo(lackScores);
+  const lack = topTwo(unmetScores);
   const archetype = MATRIX[ocean.dominant[0]]?.[lack.dominant[0]] || null;
   const secondary = ocean.secondary && lack.secondary
     ? MATRIX[ocean.secondary[0]]?.[lack.secondary[0]] || null : null;
-  renderResults(ocean, lack, archetype, secondary, oceanScores, lackScores);
+  renderResults(ocean, lack, archetype, secondary, oceanScores, unmetScores);
   switchScreen('screen-results');
 }
 
