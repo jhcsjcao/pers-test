@@ -191,12 +191,12 @@
     <div id="resume-hint" style="text-align:center;font-size:0.75rem;color:var(--accent2);margin-top:4px;display:none;"></div>
     <div style="height:1.5rem;"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:480px;margin:0 auto;">
-      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧬</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">15 questions</strong><br>OCEAN traits</div></div>
-      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧸</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">15 questions</strong><br>Unmet needs</div></div>
-      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧠</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">Dual archetype</strong><br>Result</div></div>
+      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧬</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">18 questions</strong><br>OCEAN + Sensitivity</div></div>
+      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧸</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">18 questions</strong><br>Unmet needs</div></div>
+      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧠</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">36 archetypes</strong><br>Result</div></div>
     </div>
     <div style="height:1.5rem;"></div>
-    <p style="text-align:center;font-size:0.8rem;color:var(--text2);">Rate each statement <strong>1</strong> (strongly disagree) to <strong>5</strong> (strongly agree) · ~8 min</p>
+    <p style="text-align:center;font-size:0.8rem;color:var(--text2);">Rate each statement <strong>1</strong> (strongly disagree) to <strong>5</strong> (strongly agree) · ~10 min</p>
     <div style="height:1.5rem;"></div>
     <button class="btn btn-primary" onclick="startAssessment()" style="font-size:1rem;padding:14px 40px;">Begin Assessment</button>
     <div style="height:1.5rem;"></div>
@@ -204,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.60</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.61</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -323,6 +323,15 @@ const QUESTIONS = {
           'A small setback or critical comment can throw me off for hours or days.',
           'My mind keeps replaying worst-case scenarios, and I find it hard to unwind.',
         ]
+      },
+      {
+        trait: 'Sensory Sensitivity',
+        desc: 'Depth of Processing',
+        questions: [
+          'Loud noises, bright lights, or strong smells bother me more than they seem to bother other people.',
+          'I notice subtle details in my environment that others miss — shifts in mood, texture, or atmosphere.',
+          'After a busy, stimulating day, I need quiet alone time to recover and feel like myself again.',
+        ]
       }
     ]
   },
@@ -373,6 +382,15 @@ const QUESTIONS = {
           'I get excited about a new habit but usually drop it within a couple of weeks.',
           'When a boss or manager gives me a deadline I didn\'t agree to, my gut reaction is irritation.',
         ]
+      },
+      {
+        trait: 'Stability',
+        desc: 'Predictability & Safety',
+        questions: [
+          'Growing up, I never knew which version of my parent or caregiver would show up — calm, angry, absent, or present.',
+          'My living situation as a child shifted often — moving homes, changing schools, or people coming and going unpredictably.',
+          'Even now, I find it hard to trust that good things will last — I am always waiting for the other shoe to drop.',
+        ]
       }
     ]
   }
@@ -386,6 +404,7 @@ const MATRIX = {
     'Expression': { pos:'Objective Analyst', neg:'Cold Rationalizer', desc: 'Blocked emotional sensitivity converted into abstract intellectualization.' },
     'Play': { pos:'Imaginative Creator', neg:'Compulsive Daydreamer', desc: 'Rigid environments force openness into heavy sci-fi/fantasy escapism.' },
     'Limits': { pos:'Expansive Thinker', neg:'Unfocused Drifter', desc: 'Unbounded exploration produces brilliant brainstorming but lacks follow-through.' },
+    'Stability': { pos:'Adaptable Wanderer', neg:'Ungrounded Escapist', desc: 'Curiosity thrives in varied environments; without anchors, ideas float away from reality.' },
   },
   'Conscientiousness': {
     'Attachment': { pos:'Dedicated Producer', neg:'Desperate Overachiever', desc: 'Discipline weaponized to earn unstable parental love through flawless performance.' },
@@ -393,6 +412,7 @@ const MATRIX = {
     'Expression': { pos:'Stoic Executor', neg:'Callous Automaton', desc: 'Task-focus is used to suppress messy emotions, leading to compulsive productivity.' },
     'Play': { pos:'Exacting Master', neg:'Anxious Obsessive', desc: 'Natural discipline exploited by heavy standards, creating absolute inability to rest.' },
     'Limits': { pos:'Self-Governing Leader', neg:'Inflexible Dictator', desc: 'Innate discipline acts as an internal brake, strictly self-imposing missing structure.' },
+    'Stability': { pos:'Stabilizing Force', neg:'Rigid Controller', desc: 'Brings order to chaotic environments; can become controlling when predictability is threatened.' },
   },
   'Extraversion': {
     'Attachment': { pos:'Empathetic Connector', neg:'Needy Approval-Seeker', desc: 'High social drive meets unreliability, fueling anxious performance for attention.' },
@@ -400,6 +420,7 @@ const MATRIX = {
     'Expression': { pos:'Expressive Entertainer', neg:'Erratic Attention-Seeker', desc: 'Silenced vocal energy leads to forced compliance followed by volatile blowouts.' },
     'Play': { pos:'Adventurous Explorer', neg:'Reckless Hedonist', desc: 'Need for stimulation crushed by rigid burdens creates erratic pursuit of thrill.' },
     'Limits': { pos:'Fearless Pioneer', neg:'Chaotic Risk-Taker', desc: 'Extraversion combined with zero boundaries breeds constant risk-taking and boredom.' },
+    'Stability': { pos:'Anchor of the Group', neg:'Chaotic Socialite', desc: 'Creates energy and connection wherever they go; can generate chaos in already-unstable settings.' },
   },
   'Agreeableness': {
     'Attachment': { pos:'Compassionate Peacemaker', neg:'Self-Erasing Martyr', desc: 'Desire for harmony makes the child appease cold caregivers by erasing personal needs.' },
@@ -407,6 +428,7 @@ const MATRIX = {
     'Expression': { pos:'Gentle Diplomat', neg:'Silent Resenter', desc: 'Conflict-avoidance and a ban on negative emotions create deep buried resentment.' },
     'Play': { pos:'Nurturing Guardian', neg:'Exhausted Enabler', desc: 'Quietly absorbs household stress to keep peace, resulting in severe self-neglect.' },
     'Limits': { pos:'Graceful Mediator', neg:'Spineless Appeaser', desc: 'Natural social consideration protects against entitlement despite lacking rules.' },
+    'Stability': { pos:'Calming Presence', neg:'Anxious Appeaser', desc: 'Steadies others through warmth and consistency; can absorb others\' instability at their own expense.' },
   },
   'Neuroticism': {
     'Attachment': { pos:'Sensitive Protector', neg:'Panicked Clinger', desc: 'High amygdala reactivity treats emotional distance as a severe survival emergency.' },
@@ -414,6 +436,15 @@ const MATRIX = {
     'Expression': { pos:'Passionate Advocate', neg:'Suppressed Time-Bomb', desc: 'High emotional intensity is suppressed, creating a violent internal pressure cooker.' },
     'Play': { pos:'Diligent Preparer', neg:'Paralyzed Fatalist', desc: 'High stress reactivity combined with heavy burdens causes chronic, heavy burnout.' },
     'Limits': { pos:'Dynamic Empath', neg:'Chaotic Reactor', desc: 'High emotional instability with no external boundaries produces wild mood swings.' },
+    'Stability': { pos:'Hypervigilant Protector', neg:'Perpetually Unsafe', desc: 'Acute threat awareness keeps loved ones safe; calm can feel foreign and untrustworthy.' },
+  },
+  'Sensory Sensitivity': {
+    'Attachment': { pos:'Tender Observer', neg:'Overwhelmed Withdrawer', desc: 'Deeply attuned to emotional subtleties; retreats inward when connection feels too intense.' },
+    'Competence': { pos:'Careful Evaluator', neg:'Easily Discouraged', desc: 'Notices details others miss and proceeds with care; criticism or pressure can be paralyzing.' },
+    'Expression': { pos:'Deeply Perceptive', neg:'Emotionally Flooded', desc: 'Reads emotional currents with unusual accuracy; can become overstimulated by others\' feelings.' },
+    'Play': { pos:'Gentle Creator', neg:'Stimulation Avoider', desc: 'Finds joy in quiet, low-stimulation pursuits; may skip lively experiences that feel overwhelming.' },
+    'Limits': { pos:'Self-Regulating Sensor', neg:'Ungrounded Drifter', desc: 'Naturally tunes into internal needs for rest and regulation; struggles without external anchors.' },
+    'Stability': { pos:'Anchored Sensitive', neg:'Chronically Unmoored', desc: 'A predictable environment lets deep perception flourish; unpredictability is profoundly disorienting.' },
   }
 };
 
@@ -467,7 +498,7 @@ function checkResume() {
     if (data.results) {
       hint.innerHTML = `<a href="#" onclick="viewSavedResults('${name}');return false;" style="color:var(--accent2);text-decoration:underline;">📋 View previous results for "${name}"</a>`;
     } else if (data.answers && Object.keys(data.answers).length > 0) {
-      hint.innerHTML = `<a href="#" onclick="resumeAssessment('${name}');return false;" style="color:var(--accent2);text-decoration:underline;">⏳ Resume assessment (${Object.keys(data.answers).length}/30 answered)</a>`;
+      hint.innerHTML = `<a href="#" onclick="resumeAssessment('${name}');return false;" style="color:var(--accent2);text-decoration:underline;">⏳ Resume assessment (${Object.keys(data.answers).length}/36 answered)</a>`;
     }
     hint.style.display = 'block';
   } else {
@@ -576,10 +607,10 @@ function renderQuestion() {
   buildPageQuestions();
   const pq = pageQuestions[currentQ];
   const totalAnswered = Object.keys(answers).length;
-  const overallPct = ((currentPage * (pageQuestions.length || 9) + currentQ) / 30) * 100;
+  const overallPct = ((currentPage * (pageQuestions.length || 9) + currentQ) / 36) * 100;
 
   document.getElementById('progress-label').textContent =
-    `Page ${currentPage + 1} of ${totalPages} · ${totalAnswered} of 30 answered`;
+    `Page ${currentPage + 1} of ${totalPages} · ${totalAnswered} of 36 answered`;
   document.getElementById('progress-fill').style.width = `${overallPct}%`;
 
   // Trait badge
