@@ -204,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.59</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.60</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -424,6 +424,7 @@ let currentPage = 0;
 let currentQ = 0;        // question index within current page
 let totalPages = 4;
 let pageQuestions = [];   // flat list of {globalIdx, qi, section, qnum} for current page
+let advancing = false;    // guard against rapid click race conditions
 
 function buildFlatSections() {
   flatSections = [];
@@ -638,6 +639,7 @@ function renderQuestion() {
 }
 
 function pickAnswer(val) {
+  if (advancing) return;
   const pq = pageQuestions[currentQ];
   answers[`${pq.globalIdx}_${pq.qi}`] = val;
 
@@ -657,11 +659,14 @@ function pickAnswer(val) {
   }
   document.getElementById('dots').innerHTML = dotHtml;
 
+  // Disable buttons during transition
+  advancing = true;
+  document.querySelectorAll('.likert-btn-big').forEach(b => b.style.pointerEvents = 'none');
+
   // Auto-advance after short pause
   if (currentQ < pageQuestions.length - 1) {
-    setTimeout(() => { currentQ++; saveState(); renderQuestion(); }, 350);
+    setTimeout(() => { currentQ++; saveState(); advancing = false; renderQuestion(); }, 350);
   } else {
-    // Last question on page — auto-advance to next page or results
     const allDone = pageQuestions.every(pqI => !!answers[`${pqI.globalIdx}_${pqI.qi}`]);
     if (allDone) {
       setTimeout(() => {
@@ -669,6 +674,7 @@ function pickAnswer(val) {
           currentPage++; currentQ = 0;
           saveState();
           buildPageQuestions();
+          advancing = false;
           renderQuestion();
         } else {
           calculateResults();
@@ -676,6 +682,7 @@ function pickAnswer(val) {
       }, 500);
     } else {
       saveState();
+      advancing = false;
       renderQuestion();
     }
   }
