@@ -230,7 +230,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.71</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.72</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -883,19 +883,22 @@ function getGeneration() {
   const by = document.getElementById('birthyear');
   if (!by || !by.value) return null;
   const decade = parseInt(by.value);
-  if (decade <= 1964) return { name:'Boomer', context:'Post-war stability and institutional trust shaped your relationship with authority and risk.' };
-  if (decade <= 1980) return { name:'Gen X', context:'Latchkey independence and institutional skepticism reinforced self-reliance and adaptability.' };
-  if (decade <= 1996) return { name:'Millennial', context:'The Great Recession, helicopter parenting, and digital revolution shaped your economic outlook and identity.' };
-  return { name:'Gen Z', context:'Social media, climate anxiety, and always-on connectivity forged a digitally-native, existential outlook.' };
+  if (decade <= 1964) return { name:'Boomer', lens:'shaped by post-war stability and institutional optimism' };
+  if (decade <= 1980) return { name:'Gen X', lens:'forged in latchkey independence and healthy skepticism of institutions' };
+  if (decade <= 1996) return { name:'Millennial', lens:'influenced by economic volatility, helicopter parenting, and digital transformation' };
+  return { name:'Gen Z', lens:'growing up with social media, climate awareness, and always-on connectivity' };
 }
 
 function generationalLens() {
   const gen = getGeneration();
   if (!gen) return '';
+  const top = weighted[0];
   return `
     <div class="result-card" style="margin-top:14px;padding:14px 16px;text-align:left;">
-      <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;">Generational Context · ${gen.name}</div>
-      <div style="font-size:0.8rem;color:var(--text2);line-height:1.5;">${gen.context} This generational lens may color how your archetype patterns show up in daily life — the same core archetype expresses differently across eras.</div>
+      <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;">Generational Lens · ${gen.name}</div>
+      <div style="font-size:0.82rem;color:var(--text);line-height:1.5;">
+        As a <strong style="color:var(--accent);">${top.pos}</strong> raised ${gen.lens}, your pattern of <em style="color:var(--text2);">${top.desc.toLowerCase()}</em> likely took on a distinctly ${gen.name} expression — the same core dynamic, filtered through the events and expectations of your era.
+      </div>
     </div>`;
 }
 
