@@ -181,7 +181,15 @@
     <p style="text-align:center;font-size:0.9rem;color:var(--text2);letter-spacing:2px;text-transform:uppercase;">Personality Assessment</p>
     <div style="height:2rem;"></div>
     <p style="text-align:center;font-size:1rem;color:var(--text);max-width:420px;margin:0 auto;line-height:1.6;">Discover how your natural temperament and early experiences shape your behavioral patterns.</p>
-    <div style="height:2rem;"></div>
+    <div style="height:1.5rem;"></div>
+    <p style="text-align:center;font-size:0.78rem;color:var(--text2);margin-bottom:6px;">Enter a name to save your progress locally</p>
+    <div style="display:flex;gap:8px;justify-content:center;">
+      <input id="username" type="text" placeholder="Your name or ID" maxlength="30"
+        style="background:var(--surface2);border:1px solid var(--surface2);color:var(--text);border-radius:6px;padding:8px 14px;font-size:0.9rem;font-family:var(--font);width:200px;text-align:center;"
+        oninput="checkResume()">
+    </div>
+    <div id="resume-hint" style="text-align:center;font-size:0.75rem;color:var(--accent2);margin-top:4px;display:none;"></div>
+    <div style="height:1.5rem;"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:480px;margin:0 auto;">
       <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧬</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">15 questions</strong><br>OCEAN traits</div></div>
       <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧸</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">15 questions</strong><br>Unmet needs</div></div>
@@ -196,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.51</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.52</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -445,12 +453,71 @@ function buildPageQuestions() {
   }
 }
 
+// ── LOCAL PERSISTENCE ───────────────────────────────
+function storageKey(name) { return `ocean-results-${name}`; }
+
+function checkResume() {
+  const name = document.getElementById('username').value.trim();
+  const hint = document.getElementById('resume-hint');
+  if (!name) { hint.style.display = 'none'; return; }
+  const saved = localStorage.getItem(storageKey(name));
+  if (saved) {
+    const data = JSON.parse(saved);
+    if (data.results) {
+      hint.textContent = `📋 Previous results found for "${name}"`;
+    } else if (data.answers && Object.keys(data.answers).length > 0) {
+      hint.textContent = `⏳ In-progress assessment found (${Object.keys(data.answers).length}/30 answered)`;
+    }
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function getUserName() {
+  return document.getElementById('username').value.trim() || 'anonymous';
+}
+
+function saveState(extra = {}) {
+  const name = getUserName();
+  if (name === 'anonymous') return;
+  const existing = JSON.parse(localStorage.getItem(storageKey(name)) || '{}');
+  localStorage.setItem(storageKey(name), JSON.stringify({
+    ...existing,
+    answers,
+    currentPage,
+    currentQ,
+    timestamp: Date.now(),
+    ...extra
+  }));
+}
+
+function loadState(name) {
+  const saved = localStorage.getItem(storageKey(name));
+  if (!saved) return null;
+  return JSON.parse(saved);
+}
+
 // ── NAVIGATION ────────────────────────────────────────
 function startAssessment() {
   buildFlatSections();
-  answers = {};
-  currentPage = 0;
-  currentQ = 0;
+  const name = getUserName();
+  const saved = loadState(name);
+  if (saved && saved.answers && Object.keys(saved.answers).length > 0 && !saved.results) {
+    if (confirm(`Resume your previous session? (${Object.keys(saved.answers).length}/30 answered)`)) {
+      answers = saved.answers;
+      currentPage = saved.currentPage || 0;
+      currentQ = saved.currentQ || 0;
+    } else {
+      answers = {};
+      currentPage = 0;
+      currentQ = 0;
+    }
+  } else {
+    answers = {};
+    currentPage = 0;
+    currentQ = 0;
+  }
   switchScreen('screen-questions');
   buildPageQuestions();
   renderQuestion();
@@ -557,6 +624,9 @@ function pickAnswer(val) {
   }
   document.getElementById('dots').innerHTML = dotHtml;
 
+  // Save progress
+  saveState();
+
   // Auto-advance after short pause
   if (currentQ < pageQuestions.length - 1) {
     setTimeout(() => { currentQ++; renderQuestion(); }, 350);
@@ -662,6 +732,15 @@ function calculateResults() {
 
   renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, lackScores);
   switchScreen('screen-results');
+
+  // Save results
+  const name = getUserName();
+  if (name !== 'anonymous') {
+    saveState({
+      results: { ocean: oceanScores, lack: lackScores, archetype, secondaryArchetype },
+      completedAt: new Date().toISOString()
+    });
+  }
 }
 
 function renderResults(ocean, lack, archetype, secondaryArchetype, oceanScores, lackScores) {
