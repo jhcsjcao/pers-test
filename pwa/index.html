@@ -204,7 +204,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.55</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.56</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -777,36 +777,25 @@ function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
         <div class="archetype-desc">${data.total}/15 — ${data.desc}</div>`;
   }
 
-  // Top archetype
-  const top = weighted[0];
-  const second = weighted[1];
-
-  // Show top 5 weighted archetypes
-  let archetypeRows = '';
-  for (let i = 0; i < Math.min(5, weighted.length); i++) {
+  // Top 3 archetypes in the dominant card
+  let top3html = '';
+  for (let i = 0; i < 3; i++) {
     const a = weighted[i];
     const pct = (a.weight * 100).toFixed(1);
-    const barW = Math.max(2, a.weight * 400);
-    archetypeRows += `
-      <div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:0.82rem;">
-        <div style="flex:1;text-align:right;">
-          <span style="font-weight:600;">${a.pos}</span>
-          <span style="color:var(--text2);font-size:0.7rem;"> / ${a.neg}</span>
-        </div>
-        <div style="width:120px;background:var(--surface);border-radius:4px;height:16px;overflow:hidden;">
-          <div style="width:${barW}%;background:var(--accent);height:100%;border-radius:4px;transition:width 0.5s;"></div>
-        </div>
-        <span style="color:var(--accent2);font-size:0.75rem;font-weight:700;width:40px;text-align:left;">${pct}%</span>
-      </div>`;
+    const divider = i > 0 ? ' style="margin-top:10px;padding-top:10px;border-top:1px solid var(--surface2);"' : '';
+    top3html += `
+        <div${divider}>
+          <div class="trait" style="color:var(--accent);font-size:${i===0?'1.25':'0.95'}rem;">${a.pos} <span style="font-size:0.75rem;color:var(--text2);font-weight:400;">/ ${a.neg}</span></div>
+          <div class="archetype-desc">${a.desc}</div>
+          <div style="font-size:0.68rem;color:var(--text2);margin-top:3px;">${pct}% fit · ${a.ocean} × ${a.unmet}</div>
+        </div>`;
   }
 
   let html = `
     <div class="results-grid">
       <div class="result-card dominant">
-        <div class="label">Top Archetype</div>
-        <div class="trait" style="color:var(--accent);">${top.pos} <span style="font-size:0.8rem;color:var(--text2);font-weight:400;">/ ${top.neg}</span></div>
-        <div class="archetype-desc">${top.desc}</div>
-        <div style="font-size:0.7rem;color:var(--text2);margin-top:6px;">${(top.weight*100).toFixed(1)}% fit · ${top.ocean} × ${top.unmet}</div>
+        <div class="label">Top Archetypes</div>
+        ${top3html}
       </div>
       <div class="result-card">
         ${formatEntry(ocean.dominant, 'var(--accent)', 'Dominant OCEAN Trait')}
@@ -816,11 +805,6 @@ function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
         ${formatEntry(lack.dominant, 'var(--warn)', 'Dominant Unmet Need')}
         ${lack.secondary ? `<div class="secondary" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--surface2);">${formatEntry(lack.secondary, 'var(--warn)', 'Secondary Unmet Need')}</div>` : ''}
       </div>
-    </div>
-    <div class="result-card" style="margin-top:14px;text-align:left;">
-      <div class="label">Archetype Profile</div>
-      <div style="font-size:0.7rem;color:var(--text2);margin-bottom:8px;">Top 5 weighted matches — your trait proportions determine relative fit</div>
-      ${archetypeRows}
     </div>`;
 
   // All trait scores in two columns
