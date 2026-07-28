@@ -1,4 +1,4 @@
-const CACHE = 'ocean-assessment-v1.00.61';
+const CACHE = 'ocean-assessment-v1.00.62';
 const isDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
 self.addEventListener('install', e => {
