@@ -230,7 +230,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.72</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.73</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -549,36 +549,40 @@ function resumeAssessment(name) {
 
 function viewSavedResults(name) {
   const saved = loadState(name);
-  if (!saved || !saved.results) return;
+  if (!saved || !saved.results) {
+    alert('No saved results found for this name.');
+    return;
+  }
   buildFlatSections();
-  // Reconstruct weighted from saved data
-  const { ocean, unmet, weighted } = saved.results;
-  const oceanP = {};
-  const unmetP = {};
-  // Recalculate proportions
-  const oTotal = Object.values(ocean).reduce((s,d) => s+d.total,0);
-  const uTotal = Object.values(unmet).reduce((s,d) => s+d.total,0);
-  for (let [k,d] of Object.entries(ocean)) oceanP[k] = {...d, pct: d.total/oTotal};
-  for (let [k,d] of Object.entries(unmet)) unmetP[k] = {...d, pct: d.total/uTotal};
-  // Rebuild weighted if not saved
-  let w = weighted;
-  if (!w) {
-    w = [];
-    for (let o of Object.keys(MATRIX)) {
-      for (let u of Object.keys(MATRIX[o])) {
-        w.push({ ocean:o, unmet:u, weight: oceanP[o].pct * unmetP[u].pct, ...MATRIX[o][u] });
+  try {
+    const { ocean, unmet, weighted } = saved.results;
+    const oceanP = {};
+    const unmetP = {};
+    const oTotal = Object.values(ocean).reduce((s,d) => s+d.total,0);
+    const uTotal = Object.values(unmet).reduce((s,d) => s+d.total,0);
+    for (let [k,d] of Object.entries(ocean)) oceanP[k] = {...d, pct: d.total/oTotal};
+    for (let [k,d] of Object.entries(unmet)) unmetP[k] = {...d, pct: d.total/uTotal};
+    let w = weighted;
+    if (!w || w.length === 0) {
+      w = [];
+      for (let o of Object.keys(MATRIX)) {
+        for (let u of Object.keys(MATRIX[o])) {
+          w.push({ ocean:o, unmet:u, weight: oceanP[o].pct * unmetP[u].pct, ...MATRIX[o][u] });
+        }
       }
+      w.sort((a,b) => b.weight - a.weight);
     }
-    w.sort((a,b) => b.weight - a.weight);
+    function topTwo(scores) {
+      const entries = Object.entries(scores).sort((a,b) => b[1].total - a[1].total);
+      return { dominant: entries[0], secondary: entries[1] || null };
+    }
+    const oceanTop = topTwo(ocean);
+    const lackTop = topTwo(unmet);
+    renderResults(oceanTop, lackTop, w, ocean, unmet);
+    switchScreen('screen-results');
+  } catch(e) {
+    alert('Could not load saved results. They may be from an older version. Please retake the assessment.');
   }
-  function topTwo(scores) {
-    const entries = Object.entries(scores).sort((a,b) => b[1].total - a[1].total);
-    return { dominant: entries[0], secondary: entries[1] || null };
-  }
-  const oceanTop = topTwo(ocean);
-  const lackTop = topTwo(unmet);
-  renderResults(oceanTop, lackTop, w, ocean, unmet);
-  switchScreen('screen-results');
 }
 
 function getUserName() {
