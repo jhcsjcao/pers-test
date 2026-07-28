@@ -178,7 +178,7 @@
   <!-- START SCREEN -->
   <div class="screen active" id="screen-start">
     <h1>OCEAN <span>×</span> Childhood Needs<br>Personality Assessment</h1>
-    <div style="display:inline-block;background:var(--accent);color:#fff;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:700;margin-top:4px;letter-spacing:1px;">v1.00.43</div>
+    <div style="display:inline-block;background:var(--accent);color:#fff;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:700;margin-top:4px;letter-spacing:1px;">v1.00.44</div>
     <p>Discover how your natural temperament and early experiences shape your behavioral patterns.</p>
     <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
       <li>🧬 <strong>Part 1:</strong> 15 questions — OCEAN temperament traits</li>
@@ -188,6 +188,7 @@
     <p style="font-size:0.85rem; color: var(--text2);">Rate each statement <strong>1 (strongly disagree)</strong> to <strong>5 (strongly agree)</strong>. Takes ~8 minutes.</p>
     <button class="btn btn-primary" onclick="startAssessment()">Begin Assessment →</button>
     <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.85rem;padding:8px 16px;">Enter Scores Manually</button>
+    <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.85rem;padding:8px 16px;">About OCEAN & Unmet Childhood Needs</button>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -216,6 +217,43 @@
     <div id="manual-form" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
     <button class="btn btn-primary" onclick="calculateManual()">See Results 🧠</button>
     <button class="btn btn-secondary" onclick="restart()">← Back</button>
+  </div>
+
+  <!-- INFO SCREEN -->
+  <div class="screen" id="screen-info">
+    <h1>About the Framework</h1>
+    <div style="overflow-y:auto;max-height:60vh;padding-right:4px;display:flex;flex-direction:column;gap:16px;">
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;border-left:3px solid var(--accent);">
+        <h3 style="color:var(--accent);margin-bottom:6px;">What is OCEAN?</h3>
+        <p style="font-size:0.85rem;">The <strong>Big Five</strong> (OCEAN) is the most widely validated model of personality in psychology. Discovered through decades of factor analysis across cultures, it describes five broad dimensions of temperament — not types, but spectrums. Everyone has all five traits to varying degrees.</p>
+        <ul style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:0.82rem;">
+          <li><strong style="color:var(--accent);">O</strong>penness — curiosity, creativity, appetite for new ideas</li>
+          <li><strong style="color:var(--accent);">C</strong>onscientiousness — discipline, order, drive to achieve</li>
+          <li><strong style="color:var(--accent);">E</strong>xtraversion — sociability, energy, outward engagement</li>
+          <li><strong style="color:var(--accent);">A</strong>greeableness — empathy, cooperation, harmony-seeking</li>
+          <li><strong style="color:var(--accent);">N</strong>euroticism — emotional sensitivity, stress reactivity</li>
+        </ul>
+        <p style="font-size:0.78rem;color:var(--text2);margin-top:8px;">Public domain. No single researcher or company owns the Big Five — it is a scientific discovery, not a commercial product.</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;border-left:3px solid var(--warn);">
+        <h3 style="color:var(--warn);margin-bottom:6px;">Unmet Childhood Needs</h3>
+        <p style="font-size:0.85rem;">Research in developmental psychology identifies key domains where children need consistent, adequate support. When these needs are partially or fully unmet, adaptive coping patterns form — patterns that often persist into adulthood.</p>
+        <ul style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:0.82rem;">
+          <li><strong style="color:var(--warn);">Attachment</strong> — safety, warmth, reliable emotional presence</li>
+          <li><strong style="color:var(--warn);">Competence</strong> — autonomy, encouragement to master skills independently</li>
+          <li><strong style="color:var(--warn);">Expression</strong> — validation of emotions, permission to feel openly</li>
+          <li><strong style="color:var(--warn);">Play</strong> — unstructured joy, lightness, freedom from adult burdens</li>
+          <li><strong style="color:var(--warn);">Limits</strong> — consistent boundaries, healthy structure and guidance</li>
+        </ul>
+        <p style="font-size:0.78rem;color:var(--text2);margin-top:8px;">Drawn from attachment theory (Bowlby, Ainsworth), competence motivation (White, Bandura), emotion socialization research (Gottman), play therapy (Axline), and authoritative parenting literature (Baumrind).</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;">
+        <h3 style="color:var(--accent2);margin-bottom:6px;">How the Matrix Works</h3>
+        <p style="font-size:0.85rem;">Your <strong style="color:var(--accent);">dominant OCEAN trait</strong> (your strongest temperament tendency) is crossed with your <strong style="color:var(--warn);">largest unmet childhood need</strong> to produce a behavioral archetype. Each archetype has a <strong>healthy expression</strong> (the adaptive strength you developed) and a <strong>shadow pattern</strong> (where the coping mechanism can limit you).</p>
+        <p style="font-size:0.82rem;color:var(--text2);margin-top:6px;">This is not a clinical diagnosis. It is a tool for self-reflection — understanding how your nature (temperament) and nurture (early environment) may have shaped who you are today.</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="restart()">← Back</button>
   </div>
 </div>
 
@@ -681,6 +719,10 @@ function restart() {
 
 // ── SERVICE WORKER REGISTRATION ───────────────────────
 // ── MANUAL SCORE ENTRY ───────────────────────────────
+function showInfo() {
+  switchScreen('screen-info');
+}
+
 function showManualEntry() {
   buildFlatSections();
   const form = document.getElementById('manual-form');
