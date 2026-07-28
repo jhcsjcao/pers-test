@@ -218,7 +218,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.64</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.65</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -867,62 +867,60 @@ function calculateResults() {
 }
 
 function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
-  function formatEntry(entry, color, name) {
-    if (!entry) return '';
-    const [trait, data] = entry;
-    return `
-        <div class="label">${name}</div>
-        <div class="trait" style="color:${color};">${trait}</div>
-        <div class="archetype-desc">${data.total}/15 — ${data.desc}</div>`;
+  function traitRow(trait, data, color) {
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.8rem;">
+      <span>${trait}</span>
+      <span style="font-weight:600;color:${color};">${data.total}/15</span>
+    </div>`;
   }
 
-  // Top 3 archetypes in the dominant card
+  // Top 3 archetypes
   let top3html = '';
   for (let i = 0; i < 3; i++) {
     const a = weighted[i];
     const pct = (a.weight * 100).toFixed(1);
-    const divider = i > 0 ? ' style="margin-top:10px;padding-top:10px;border-top:1px solid var(--surface2);"' : '';
     top3html += `
-        <div${divider}>
-          <div class="trait" style="color:var(--accent);font-size:${i===0?'1.25':'0.95'}rem;">${a.pos} <span style="font-size:0.75rem;color:var(--text2);font-weight:400;">/ ${a.neg}</span></div>
-          <div class="archetype-desc">${a.desc}</div>
-          <div style="font-size:0.68rem;color:var(--text2);margin-top:3px;">${pct}% fit · ${a.ocean} × ${a.unmet}</div>
+        <div style="${i > 0 ? 'margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);' : ''}">
+          <div style="font-size:${i===0?'1.15':'0.92'}rem;font-weight:700;color:var(--accent);line-height:1.3;">${a.pos}</div>
+          <div style="font-size:0.72rem;color:var(--text2);margin-bottom:4px;">${a.neg} · ${a.ocean} × ${a.unmet} · ${pct}%</div>
+          <div style="font-size:0.8rem;color:var(--text2);line-height:1.4;font-style:italic;">${a.desc}</div>
         </div>`;
   }
 
-  let html = `
-    <div class="results-grid">
-      <div class="result-card dominant">
-        <div class="label">Top Archetypes</div>
-        ${top3html}
-      </div>
-    </div>`;
-
-  // OCEAN + Unmet columns — dominant card + scores stacked
   const oceanKeys = Object.keys(oceanScores).sort((a,b) => oceanScores[b].total - oceanScores[a].total);
   const unmetKeys = Object.keys(unmetScores).sort((a,b) => unmetScores[b].total - unmetScores[a].total);
-  html += `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="result-card">
-          ${formatEntry(ocean.dominant, 'var(--accent)', 'Dominant OCEAN Trait')}
-          ${ocean.secondary ? `<div class="secondary" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--surface2);">${formatEntry(ocean.secondary, 'var(--accent2)', 'Secondary OCEAN Trait')}</div>` : ''}
+
+  let html = `
+    <div style="margin-bottom:16px;">
+      <div class="result-card" style="padding:16px 18px;">
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:10px;">Top Archetypes</div>
+        ${top3html}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="result-card" style="padding:14px 16px;">
+          <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;">Temperament</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--accent);line-height:1.3;">${ocean.dominant[0]}</div>
+          <div style="font-size:0.75rem;color:var(--text2);margin-top:2px;">Dominant trait · ${ocean.dominant[1].total}/15</div>
+          ${ocean.secondary ? `<div style="font-size:0.8rem;font-weight:600;color:var(--accent2);margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">${ocean.secondary[0]} <span style="font-size:0.7rem;color:var(--text2);font-weight:400;">· Secondary · ${ocean.secondary[1].total}/15</span></div>` : ''}
         </div>
-        <div class="result-card" style="text-align:left;">
-          <div class="label">OCEAN Traits</div>
-          <div style="font-size:0.62rem;color:var(--text2);margin-bottom:4px;">(Higher score = more tendency toward trait)</div>
-          ${oceanKeys.map(k => `<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--surface2);font-size:0.75rem;"><span>${k}</span><span style="font-weight:700;color:var(--accent2);">${oceanScores[k].total}/15</span></div>`).join('')}
+        <div class="result-card" style="padding:14px 16px;text-align:left;">
+          <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:10px;">All OCEAN Traits</div>
+          ${oceanKeys.map(k => traitRow(k, oceanScores[k], 'var(--accent2)')).join('')}
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="result-card">
-          ${formatEntry(lack.dominant, 'var(--warn)', 'Dominant Unmet Need')}
-          ${lack.secondary ? `<div class="secondary" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--surface2);">${formatEntry(lack.secondary, 'var(--warn)', 'Secondary Unmet Need')}</div>` : ''}
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="result-card" style="padding:14px 16px;">
+          <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;">Unmet Need</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--warn);line-height:1.3;">${lack.dominant[0]}</div>
+          <div style="font-size:0.75rem;color:var(--text2);margin-top:2px;">Dominant · ${lack.dominant[1].total}/15</div>
+          ${lack.secondary ? `<div style="font-size:0.8rem;font-weight:600;color:var(--warn);margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">${lack.secondary[0]} <span style="font-size:0.7rem;color:var(--text2);font-weight:400;">· Secondary · ${lack.secondary[1].total}/15</span></div>` : ''}
         </div>
-        <div class="result-card" style="text-align:left;">
-          <div class="label">Unmet Childhood Needs</div>
-          <div style="font-size:0.62rem;color:var(--text2);margin-bottom:4px;">(Higher score = larger unmet need)</div>
-          ${unmetKeys.map(k => `<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--surface2);font-size:0.75rem;"><span>${k}</span><span style="font-weight:700;color:var(--warn);">${unmetScores[k].total}/15</span></div>`).join('')}
+        <div class="result-card" style="padding:14px 16px;text-align:left;">
+          <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:4px;">All Unmet Needs</div>
+          <div style="font-size:0.62rem;color:var(--text2);margin-bottom:8px;">Higher score = larger unmet need</div>
+          ${unmetKeys.map(k => traitRow(k, unmetScores[k], 'var(--warn)')).join('')}
         </div>
       </div>
     </div>`;
