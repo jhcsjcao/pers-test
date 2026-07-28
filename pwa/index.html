@@ -230,7 +230,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.73</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.74</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -806,9 +806,21 @@ function prevPageFull() {
 
 // ── SCORING ───────────────────────────────────────────
 function calculateResults() {
-  const allAnswered = pageQuestions.every(pqI => !!answers[`${pqI.globalIdx}_${pqI.qi}`]);
+  // Check ALL questions across all pages
+  buildFlatSections();
+  const allAnswered = flatSections.every((s, si) =>
+    [0,1,2].every(qi => !!answers[`${si}_${qi}`])
+  );
   if (!allAnswered) {
-    alert('Please answer all questions before seeing results.');
+    // Count missing
+    let missing = [];
+    for (let si = 0; si < flatSections.length; si++) {
+      for (let qi = 0; qi < 3; qi++) {
+        if (!answers[`${si}_${qi}`]) missing.push(si*3+qi+1);
+      }
+    }
+    const qs = document.getElementById('questions-container');
+    qs.innerHTML = `<div class="q-single"><div class="q-question" style="color:var(--danger);">⚠️ ${missing.length} question(s) unanswered: Q${missing.join(', Q')}.<br>Use dots below to go back and answer them.</div></div>`;
     return;
   }
 
