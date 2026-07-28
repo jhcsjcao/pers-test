@@ -177,21 +177,26 @@
 <div id="app">
   <!-- START SCREEN -->
   <div class="screen active" id="screen-start">
-    <h1 style="text-align:center;">OCEAN <span>×</span> Childhood Needs<br><span style="display:inline-block;margin-top:6px;">Personality Assessment</span></h1>
-    <div style="height:1rem;"></div>
-    <p style="text-align:center;">Discover how your natural temperament and early experiences shape your behavioral patterns.</p>
+    <h1 style="text-align:center;font-size:2rem;font-weight:300;letter-spacing:-0.5px;">OCEAN <span style="font-weight:600;">×</span> Childhood Needs</h1>
+    <p style="text-align:center;font-size:0.9rem;color:var(--text2);letter-spacing:2px;text-transform:uppercase;">Personality Assessment</p>
+    <div style="height:2rem;"></div>
+    <p style="text-align:center;font-size:1rem;color:var(--text);max-width:420px;margin:0 auto;line-height:1.6;">Discover how your natural temperament and early experiences shape your behavioral patterns.</p>
+    <div style="height:2rem;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:480px;margin:0 auto;">
+      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧬</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">15 questions</strong><br>OCEAN traits</div></div>
+      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧸</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">15 questions</strong><br>Unmet needs</div></div>
+      <div style="text-align:center;"><div style="font-size:1.5rem;margin-bottom:4px;">🧠</div><div style="font-size:0.72rem;color:var(--text2);line-height:1.4;"><strong style="color:var(--text);">Dual archetype</strong><br>Result</div></div>
+    </div>
     <div style="height:1.5rem;"></div>
-    <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
-      <li>🧬 <strong>Part 1:</strong> 15 questions — OCEAN temperament traits</li>
-      <li>🧸 <strong>Part 2:</strong> 15 questions — Unmet Childhood Needs</li>
-      <li>🧠 <strong>Result:</strong> Dominant & secondary traits mapped to behavioral archetypes</li>
-    </ul>
-    <p style="font-size:0.85rem; color: var(--text2);">Rate each statement <strong>1 (strongly disagree)</strong> to <strong>5 (strongly agree)</strong>. Takes ~8 minutes.</p>
-    <div style="height:1rem;"></div>
-    <button class="btn btn-primary" onclick="startAssessment()">Begin Assessment →</button>
-    <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.85rem;padding:8px 16px;">Enter Scores Manually</button>
-    <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.85rem;padding:8px 16px;">About OCEAN & Unmet Childhood Needs</button>
-    <div style="font-size:0.7rem;color:var(--text2);text-align:center;margin-top:4px;">v1.00.50</div>
+    <p style="text-align:center;font-size:0.8rem;color:var(--text2);">Rate each statement <strong>1</strong> (strongly disagree) to <strong>5</strong> (strongly agree) · ~8 min</p>
+    <div style="height:1.5rem;"></div>
+    <button class="btn btn-primary" onclick="startAssessment()" style="font-size:1rem;padding:14px 40px;">Begin Assessment</button>
+    <div style="height:1.5rem;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
+      <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
+    </div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.51</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
