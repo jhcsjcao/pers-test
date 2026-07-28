@@ -230,7 +230,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.70</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.71</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -661,7 +661,6 @@ function renderQuestion() {
       </div>
       <div class="q-counter">Question ${currentQ + 1} of ${pageQuestions.length} on this page</div>
     </div>
-    ${generationalLens()}
   `;
 
   // Dots
@@ -959,7 +958,9 @@ function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
           ${unmetKeys.map(k => traitRow(k, unmetScores[k], 'var(--warn)')).join('')}
         </div>
       </div>
-    </div>`;
+    </div>
+    ${generationalLens()}
+  `;
   document.getElementById('results-content').innerHTML = html;
 }
 
