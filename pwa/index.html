@@ -202,6 +202,18 @@
         style="background:var(--surface2);border:1px solid var(--surface2);color:var(--text);border-radius:6px;padding:8px 14px;font-size:0.9rem;font-family:var(--font);width:200px;text-align:center;"
         oninput="checkResume()">
     </div>
+    <div style="text-align:center;margin-top:6px;">
+      <select id="birthyear" style="background:var(--surface2);border:1px solid var(--surface2);color:var(--text);border-radius:6px;padding:6px 10px;font-size:0.75rem;font-family:var(--font);">
+        <option value="">Birth decade (optional)</option>
+        <option value="1950">1950s</option>
+        <option value="1960">1960s</option>
+        <option value="1970">1970s</option>
+        <option value="1980">1980s</option>
+        <option value="1990">1990s</option>
+        <option value="2000">2000s</option>
+        <option value="2010">2010s</option>
+      </select>
+    </div>
     <div id="resume-hint" style="text-align:center;font-size:0.75rem;color:var(--accent2);margin-top:4px;display:none;"></div>
     <div style="height:1.5rem;"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:480px;margin:0 auto;">
@@ -218,7 +230,7 @@
       <button class="btn btn-secondary" onclick="showManualEntry()" style="font-size:0.78rem;padding:6px 14px;">Enter Scores</button>
       <button class="btn btn-secondary" onclick="showInfo()" style="font-size:0.78rem;padding:6px 14px;">About</button>
     </div>
-    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.69</div>
+    <div style="font-size:0.65rem;color:var(--text2);text-align:center;margin-top:1.5rem;">v1.00.70</div>
     <div id="dev-skip" style="margin-top:8px;display:none;">
       <button class="btn btn-secondary" onclick="devSkip()" style="font-size:0.75rem;padding:6px 14px;">⚡ Dev: Skip to Results</button>
     </div>
@@ -649,6 +661,7 @@ function renderQuestion() {
       </div>
       <div class="q-counter">Question ${currentQ + 1} of ${pageQuestions.length} on this page</div>
     </div>
+    ${generationalLens()}
   `;
 
   // Dots
@@ -864,6 +877,27 @@ function calculateResults() {
       completedAt: new Date().toISOString()
     });
   }
+}
+
+// ── GENERATIONAL LENS ────────────────────────────────
+function getGeneration() {
+  const by = document.getElementById('birthyear');
+  if (!by || !by.value) return null;
+  const decade = parseInt(by.value);
+  if (decade <= 1964) return { name:'Boomer', context:'Post-war stability and institutional trust shaped your relationship with authority and risk.' };
+  if (decade <= 1980) return { name:'Gen X', context:'Latchkey independence and institutional skepticism reinforced self-reliance and adaptability.' };
+  if (decade <= 1996) return { name:'Millennial', context:'The Great Recession, helicopter parenting, and digital revolution shaped your economic outlook and identity.' };
+  return { name:'Gen Z', context:'Social media, climate anxiety, and always-on connectivity forged a digitally-native, existential outlook.' };
+}
+
+function generationalLens() {
+  const gen = getGeneration();
+  if (!gen) return '';
+  return `
+    <div class="result-card" style="margin-top:14px;padding:14px 16px;text-align:left;">
+      <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;">Generational Context · ${gen.name}</div>
+      <div style="font-size:0.8rem;color:var(--text2);line-height:1.5;">${gen.context} This generational lens may color how your archetype patterns show up in daily life — the same core archetype expresses differently across eras.</div>
+    </div>`;
 }
 
 function renderResults(ocean, lack, weighted, oceanScores, unmetScores) {
